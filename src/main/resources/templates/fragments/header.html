@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<body>
+
+<div th:fragment="main_header(currentPath)" class="header-wrapper">
+    <div class="container header-inner py-3">
+
+        <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
+            <div>
+                <h1 class="mb-2">
+                    <a th:href="@{/}" class="text-decoration-none text-light">
+                        <i class="bi bi-shop me-2 text-primary"></i>
+                        <span th:text="#{header.title}">Appliance Store</span>
+                    </a>
+                </h1>
+                <p class="text-secondary mb-0" th:text="#{header.name}">
+                    Browse all available appliances
+                </p>
+            </div>
+
+            <div class="d-flex flex-wrap align-items-center gap-2">
+
+                <div class="language-switch">
+                    <a th:href="@{${currentPath}(lang='en')}"
+                       class="lang-btn"
+                       th:classappend="${#locale.language == 'en'} ? ' active' : ''">
+                        EN
+                    </a>
+                    <a th:href="@{${currentPath}(lang='uk')}"
+                       class="lang-btn"
+                       th:classappend="${#locale.language == 'uk'} ? ' active' : ''">
+                        UA
+                    </a>
+                </div>
+
+                <div sec:authorize="isAnonymous()" class="d-flex gap-2">
+                    <a th:href="@{/login}" class="btn btn-primary" th:text="#{login.heading}">Login</a>
+                    <a th:href="@{/signUp}" class="btn btn-primary" th:text="#{signup.heading.form}">Sign Up</a>
+                </div>
+
+                <div sec:authorize="hasAuthority('ROLE_CLIENT')" class="d-flex gap-2 flex-wrap">
+                    <a th:href="@{/cart}" class="btn btn-outline-light">
+                        <i class="bi bi-cart3 me-2"></i>
+                        <span th:text="#{header.cart}">Cart</span>
+                    </a>
+
+                    <a th:href="@{/my/orders}" class="btn btn-outline-light">
+                        <i class="bi bi-bag-check me-2"></i>
+                        <span th:text="#{header.myOrders}">My orders</span>
+                    </a>
+                </div>
+
+                <div sec:authorize="hasAuthority('ROLE_EMPLOYEE')" class="dropdown">
+                    <button class="btn btn-outline-light dropdown-toggle"
+                            type="button"
+                            data-bs-toggle="dropdown"
+                            aria-expanded="false">
+                        <i class="bi bi-gear me-2"></i>
+                        <span th:text="#{header.management}">Management</span>
+                    </button>
+
+                    <ul class="dropdown-menu dropdown-menu-dark dropdown-menu-end">
+                        <li>
+                            <a th:href="@{/orders}" class="dropdown-item">
+                                <i class="bi bi-bag-check me-2"></i>
+                                <span th:text="#{orders.heading}">Orders</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a th:href="@{/clients}" class="dropdown-item">
+                                <i class="bi bi-people me-2"></i>
+                                <span th:text="#{clients.heading}">Clients</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a th:href="@{/employees}" class="dropdown-item">
+                                <i class="bi bi-person-badge me-2"></i>
+                                <span th:text="#{employees.heading}">Employees</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a th:href="@{/appliancesList}" class="dropdown-item">
+                                <i class="bi bi-box-seam me-2"></i>
+                                <span th:text="#{appliances.heading}">Appliances</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a th:href="@{/manufacturer}" class="dropdown-item">
+                                <i class="bi bi-building me-2"></i>
+                                <span th:text="#{manufacturers.heading}">Manufacturers</span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+
+                <div sec:authorize="isAuthenticated()" class="dropdown">
+                    <button class="btn btn-outline-light dropdown-toggle" type="button"
+                            data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="bi bi-person-circle me-2"></i>
+                        <span sec:authentication="name">Profile</span>
+                    </button>
+
+                    <ul class="dropdown-menu dropdown-menu-dark dropdown-menu-end">
+                        <li sec:authorize="hasAuthority('ROLE_CLIENT')">
+                            <a th:href="@{/profile/edit}" class="dropdown-item">
+                                <i class="bi bi-pencil-square me-2"></i>
+                                <span th:text="#{profile.edit}">Edit profile</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a th:href="@{/profile/password}" class="dropdown-item">
+                                <i class="bi bi-shield-lock me-2"></i>
+                                <span th:text="#{profile.changePassword}">Change password</span>
+                            </a>
+                        </li>
+                        <li sec:authorize="hasAuthority('ROLE_CLIENT')">
+                            <hr class="dropdown-divider">
+                        </li>
+                        <li>
+                            <form th:action="@{/logout}" method="post" class="m-0">
+                                <button type="submit" class="dropdown-item">
+                                    <i class="bi bi-box-arrow-right me-2"></i>
+                                    <span th:text="#{header.logout}">Logout</span>
+                                </button>
+                            </form>
+                        </li>
+                    </ul>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+</div>
+
+</body>
+</html>
