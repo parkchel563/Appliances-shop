@@ -1,5 +1,6 @@
 package com.project.appliances.model;
 
+import com.project.appliances.constants.Roles;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
@@ -23,4 +24,8 @@ public class Client extends User{
         this.card = card;
     }
 
+    @Override
+    public String getRole() {
+        return Roles.CLIENT;
+    }
 }

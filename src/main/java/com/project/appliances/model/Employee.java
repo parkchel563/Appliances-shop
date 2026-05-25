@@ -1,5 +1,6 @@
 package com.project.appliances.model;
 
+import com.project.appliances.constants.Roles;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
@@ -22,5 +23,10 @@ public class Employee extends  User{
     public Employee(Long id, String name, String email, String password, Integer failedAttempts, Boolean accountNonLocked, LocalDateTime lockTime, String department) {
         super(id, name, email, password, failedAttempts, accountNonLocked, lockTime);
         this.department = department;
+    }
+
+    @Override
+    public String getRole() {
+        return Roles.EMPLOYEE;
     }
 }

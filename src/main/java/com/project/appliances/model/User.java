@@ -35,4 +35,6 @@ public abstract class User {
 
     @Column(name = "lock_time")
     private LocalDateTime lockTime;
+
+    public abstract String getRole();
 }
