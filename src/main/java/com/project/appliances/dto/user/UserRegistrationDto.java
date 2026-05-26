@@ -9,7 +9,7 @@ import lombok.Data;
 @Data
 public abstract class UserRegistrationDto {
     @NotBlank(message = "{validation.name.notBlank}")
-    @Size(min = 4, max = 100, message = "{validation.name.size}")
+    @Size(min = 3, max = 30, message = "{validation.name.size}")
     private String name;
 
     @NotBlank(message = "{validation.email.notBlank}")
