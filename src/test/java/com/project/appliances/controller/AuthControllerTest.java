@@ -16,24 +16,24 @@ import com.project.appliances.security.handler.CustomAuthenticationSuccessHandle
 import com.project.appliances.service.interfaces.AuthService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 @WebMvcTest(controllers = AuthController.class)
 @Import(SecurityConfig.class)
 class AuthControllerTest {
 
-    @MockitoBean
+    @MockBean
     private CustomAuthenticationSuccessHandler customAuthenticationSuccessHandler;
-    @MockitoBean
+    @MockBean
     private CustomAuthenticationFailureHandler customAuthenticationFailureHandler;
 
     @Autowired
     private MockMvc mockMvc;
 
-    @MockitoBean
+    @MockBean
     private AuthService authService;
 
     // GET /login
@@ -176,6 +176,6 @@ class AuthControllerTest {
                                 .param("confirmPassword", "password1234"))
                 .andExpect(status().isOk())
                 .andExpect(model()
-                                   .attributeHasFieldErrors("clientRegistrationDto", "name"));
+                                   .attributeHasFieldErrors("clientRegistrationDto", "confirmPassword"));
     }
 }
