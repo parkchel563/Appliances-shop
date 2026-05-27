@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<div th:fragment="controls(page)">
+    <div class="d-flex flex-wrap justify-content-center justify-content-md-between align-items-center gap-3 py-3"
+         th:if="${page.totalElements > 0}">
+
+        <div class="d-flex align-items-center gap-2 text-secondary small"
+             th:with="baseUrl=${@urlUtil.replaceParam('page', '0')}">
+            <label class="opacity-75" for="pageSizeSelect" th:text="#{pagination.size}">Show:</label>
+
+            <select class="form-select form-select-sm bg-dark text-light border-secondary shadow-none rounded-3"
+                    id="pageSizeSelect"
+                    onchange="changePageSize(this)"
+                    style="width: auto; min-width: 70px; cursor: pointer;"
+                    th:attr="data-base-url=${baseUrl}">
+
+                <option th:selected="${page.size == 6}" value="6">6</option>
+                <option th:selected="${page.size == 9}" value="9">9</option>
+                <option th:selected="${page.size == 12}" value="12">12</option>
+            </select>
+        </div>
+
+        <nav aria-label="Page navigation" th:if="${page.totalPages > 1}">
+            <ul class="pagination pagination-sm mb-0 gap-1 flex-wrap justify-content-center">
+
+                <li class="page-item" th:classappend="${page.first} ? 'disabled'">
+                    <a class="page-link rounded-2 border-0 bg-transparent text-light"
+                       th:href="${url}"
+                       th:with="url=${@urlUtil.replacePage(0, page.size)}">
+                        <i class="bi bi-chevron-double-left"></i>
+                    </a>
+                </li>
+
+                <li class="page-item" th:classappend="${page.first} ? 'disabled'">
+                    <a class="page-link rounded-2 border-0 bg-transparent text-light"
+                       th:href="${url}"
+                       th:with="url=${@urlUtil.replacePage(page.number - 1, page.size)}">
+                        <i class="bi bi-chevron-left"></i>
+                    </a>
+                </li>
+
+                <li class="page-item"
+                    th:each="i : ${#numbers.sequence(0, page.totalPages - 1)}"
+                    th:if="${i >= page.number - 2 and i <= page.number + 2}">
+                    <a class="page-link rounded-2 border-0 fw-bold"
+                       th:classappend="${page.number == i} ? ' bg-primary text-white shadow-sm' : ' bg-transparent text-light pagination-hover'"
+                       th:href="${url}"
+                       th:text="${i + 1}"
+                       th:with="url=${@urlUtil.replacePage(i, page.size)}">
+                        1
+                    </a>
+                </li>
+
+                <li class="page-item" th:classappend="${page.last} ? 'disabled'">
+                    <a class="page-link rounded-2 border-0 bg-transparent text-light"
+                       th:href="${url}"
+                       th:with="url=${@urlUtil.replacePage(page.number + 1, page.size)}">
+                        <i class="bi bi-chevron-right"></i>
+                    </a>
+                </li>
+
+                <li class="page-item" th:classappend="${page.last} ? 'disabled'">
+                    <a class="page-link rounded-2 border-0 bg-transparent text-light"
+                       th:href="${url}"
+                       th:with="url=${@urlUtil.replacePage(page.totalPages - 1, page.size)}">
+                        <i class="bi bi-chevron-double-right"></i>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+
+        <script>
+            function changePageSize(selectElement) {
+                const url = new URL(selectElement.dataset.baseUrl, window.location.origin);
+                url.searchParams.set('size', selectElement.value);
+                window.location.href = url.toString();
+            }
+        </script>
+
+        <style>
+            .page-item.disabled .page-link {
+                opacity: 0.35;
+                pointer-events: none;
+            }
+
+            #pageSizeSelect option {
+                background-color: #1e1e1e;
+                color: #e0e0e0;
+            }
+        </style>
+    </div>
+</div>
+</body>
+</html>

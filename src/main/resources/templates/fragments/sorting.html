@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+
+<div class="mb-3" th:fragment="controls(ascSort, descSort, ascText, descText)"
+     th:with="defaultUrl=${@urlUtil.replaceSort('')},
+              descUrl=${@urlUtil.replaceSort(descSort)},
+              ascUrl=${@urlUtil.replaceSort(ascSort)}">
+
+    <div class="d-flex flex-wrap gap-2">
+        <a class="btn btn-dark rounded-pill"
+           th:href="${defaultUrl}"
+           th:text="#{sorting.default}">
+        </a>
+
+        <a class="btn btn-dark rounded-pill"
+           th:href="${descUrl}"
+           th:text="${descText}">
+        </a>
+
+        <a class="btn btn-dark rounded-pill"
+           th:href="${ascUrl}"
+           th:text="${ascText}">
+        </a>
+    </div>
+</div>
+
+<div class="mb-3" th:fragment="toggle(field, label)"
+     th:with="toggleUrl=${@urlUtil.toggleSort(field)}">
+
+    <a class="btn btn-outline-light rounded-pill px-3 py-2"
+       th:href="${toggleUrl}">
+        <span th:text="${label}">Sort</span>
+        <i class="bi bi-arrow-down-up ms-2"></i>
+    </a>
+</div>
+
+</body>
+</html>
