@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <title th:text="#{manufacturers.title}">Manufacturers</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
+</head>
+<body>
+<div th:replace="~{fragments/header :: main_header('/manufacturer')}"></div>
+<div class="container appliances-wrapper">
+    <div class="mx-auto" style="max-width: 1250px;">
+        <div class="alert alert-success mb-4" role="alert" th:if="${successMessage}">
+            <span th:text="#{${successMessage}}"></span>
+        </div>
+
+        <div class="alert alert-danger mb-4" role="alert" th:if="${errorMessage}">
+            <span th:text="#{${errorMessage}}"></span>
+        </div>
+
+        <div class="d-flex justify-content-between align-items-start mb-4">
+
+            <div class="pt-4">
+                <h2 class="mb-1" th:text="#{manufacturers.heading}">Manufacturers</h2>
+                <p class="text-secondary mb-0" th:text="#{manufacturers.description}">
+                    Review all manufacturers
+                </p>
+            </div>
+
+            <div class="d-flex flex-column align-items-end gap-3">
+                <a class="btn btn-success" th:href="@{/manufacturer/create}">
+                    <i class="bi bi-person-plus me-2"></i>
+                    <span th:text="#{manufacturers.add}">Add Manufacturer</span>
+                </a>
+
+                <div class="d-flex flex-wrap gap-2 justify-content-end">
+                    <div th:replace="~{fragments/sorting :: toggle('id', #{sorting.id})}"></div>
+                    <div th:replace="~{fragments/sorting :: toggle('name', #{sorting.name_label})}"></div>
+                </div>
+            </div>
+
+        </div>
+        <div class="row g-4 align-items-start">
+            <div class="col-12 col-lg-3">
+                <form method="get" th:action="@{/manufacturer}" th:object="${criteria}">
+                    <div class="card appliance-item-card border-0 sticky-lg-top" style="top: 20px;">
+                        <div class="card-body p-4">
+                            <h5 class="mb-4 text-light">
+                                <i class="bi bi-funnel me-2"></i>
+                                <span th:text="#{filtering.title}">Filters</span>
+                            </h5>
+
+                            <div class="mb-3">
+                                <label class="form-label text-secondary"
+                                       th:text="#{filtering.label.search}">Search</label>
+                                <input class="form-control bg-dark text-light border-secondary"
+                                       th:field="*{name}"
+                                       th:placeholder="#{filtering.appliance.name}"
+                                       type="text">
+                            </div>
+                            <div class="d-grid gap-2">
+                                <button class="btn btn-primary" type="submit">
+                                    <i class="bi bi-funnel me-2"></i>
+                                    <span th:text="#{filtering.footer}">Filter</span>
+                                </button>
+
+                                <a class="btn btn-outline-light" th:href="@{/manufacturer}">
+                                    <i class="bi bi-arrow-counterclockwise me-2"></i>
+                                    <span th:text="#{filtering.reset}">Reset</span>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <div class="col-12 col-lg-9">
+                <div class="auth-form-wrapper" th:if="${#lists.isEmpty(manufacturers)}">
+                    <div class="login-card text-center">
+                        <i class="bi bi-building login-icon"></i>
+                        <h3 class="mb-3" th:text="#{manufacturers.empty}">No manufacturers found</h3>
+                        <p class="text-secondary mb-0" th:text="#{manufacturers.empty.description}">
+                            There are no manufacturers to display at the moment
+                        </p>
+                    </div>
+                </div>
+
+                <div class="row g-4" th:if="${not #lists.isEmpty(manufacturers)}">
+                    <div class="col-12 col-md-6 col-lg-4" th:each="manufacturer : ${manufacturers}">
+                        <div class="card appliance-item-card border-0 h-100">
+                            <div class="card-body p-4">
+                                <div class="d-flex flex-column justify-content-between h-100 gap-3">
+
+                                    <div>
+                                        <div class="d-flex flex-wrap align-items-center gap-2 mb-3">
+                                            <span class="appliance-badge" th:text="'#' + ${manufacturer.id}">#1</span>
+                                        </div>
+
+                                        <h5 class="mb-0 text-light">
+                                            <i class="bi bi-building me-2 text-primary"></i>
+                                            <span th:text="${manufacturer.name}">Samsung</span>
+                                        </h5>
+                                    </div>
+
+                                    <div class="position-absolute top-0 end-0 p-3">
+                                        <form class="m-0"
+                                              method="post"
+                                              th:action="@{/manufacturer/delete/{id}(id=${manufacturer.id})}">
+                                            <input th:name="${_csrf.parameterName}" th:value="${_csrf.token}"
+                                                   type="hidden">
+                                            <button class="btn btn-sm btn-outline-danger" type="submit">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                        </form>
+                                    </div>
+
+                                    <div class="d-flex flex-column align-items-end gap-2 mt-3">
+                                        <a class="btn btn-outline-light px-4"
+                                           th:href="@{/manufacturer/details/{id}(id=${manufacturer.id})}">
+                                            <i class="bi bi-eye me-2"></i>
+                                            <span th:text="#{manufacturers.details.title}">Details</span>
+                                        </a>
+
+                                        <div class="small text-secondary text-end">
+                                            <i class="bi bi-arrow-right-circle me-1"></i>
+                                            <span th:text="#{manufacturers.details.description}">View full employee information</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div th:replace="~{fragments/pagination :: controls(${manufacturersPage})}"></div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
