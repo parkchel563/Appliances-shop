@@ -168,13 +168,8 @@
                                 <span th:text="#{appliances.manufacturer}">Manufacturer</span>:
 
                                 <a class="text-info text-decoration-underline"
-                                   sec:authorize="isAuthenticated()"
                                    th:href="@{/(manufacturerId=${appliance.manufacturerId})}"
                                    th:text="${appliance.manufacturerName}">Samsung</a>
-
-                                <span class="text-light"
-                                      sec:authorize="isAnonymous()"
-                                      th:text="${appliance.manufacturerName}">Samsung</span>
                             </p>
                             <p class="text-secondary mb-4">
                                 <span th:text="#{appliances.powerType}">PowerType</span>:
