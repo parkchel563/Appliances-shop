@@ -13,5 +13,6 @@ public class ApplianceDto {
     private String powerType;
     private Integer power;
     private String manufacturerName;
+    private Long manufacturerId;
     private BigDecimal price;
 }
