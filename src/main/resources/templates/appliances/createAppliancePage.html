@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <title th:text="#{appliances.create.title}">Appliance Store - Create Appliance</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
+</head>
+<body>
+<div th:replace="~{fragments/header :: main_header(${currentPage})}"></div>
+
+<div class="auth-page-wrapper">
+    <div class="auth-page-container">
+        <div class="auth-form-wrapper">
+            <div class="login-card text-center">
+                <i class="bi bi-box-seam login-icon"></i>
+                <h2 class="mb-4" th:text="#{appliances.create.heading}">Create Appliance</h2>
+
+                <div class="alert alert-success mb-3" role="alert" th:if="${successMessage}">
+                    <span th:text="#{${successMessage}}">Appliance created successfully</span>
+                </div>
+
+                <form method="post"
+                      th:action="@{/create}"
+                      th:object="${applianceCreateDto}">
+
+                    <input th:name="${_csrf.parameterName}" th:value="${_csrf.token}" type="hidden">
+
+                    <div class="mb-3 text-start">
+                        <label class="form-label" for="name">
+                            <i class="bi bi-tag me-2"></i>
+                            <span th:text="#{appliances.name}">Name</span>
+                        </label>
+                        <input class="form-control"
+                               id="name"
+                               th:field="*{name}"
+                               th:placeholder="#{appliances.name}"
+                               type="text">
+                        <div class="error-msg mt-1" th:errors="*{name}" th:if="${#fields.hasErrors('name')}"></div>
+                    </div>
+
+                    <div class="mb-3 text-start">
+                        <label class="form-label" for="category">
+                            <i class="bi bi-grid me-2"></i>
+                            <span th:text="#{appliances.category}">Category</span>
+                        </label>
+                        <select class="form-select"
+                                id="category"
+                                th:field="*{category}">
+                            <option th:text="#{appliances.category.select}" value="">Select category</option>
+                            <option th:each="category : ${categories}"
+                                    th:text="#{${'category.' + category.name()}}"
+                                    th:value="${category}">
+                                Category
+                            </option>
+                        </select>
+                        <div class="error-msg mt-1" th:errors="*{category}"
+                             th:if="${#fields.hasErrors('category')}"></div>
+                    </div>
+
+                    <div class="mb-3 text-start">
+                        <label class="form-label" for="model">
+                            <i class="bi bi-cpu me-2"></i>
+                            <span th:text="#{appliances.model}">Model</span>
+                        </label>
+                        <input class="form-control"
+                               id="model"
+                               th:field="*{model}"
+                               th:placeholder="#{appliances.model}"
+                               type="text">
+                        <div class="error-msg mt-1" th:errors="*{model}" th:if="${#fields.hasErrors('model')}"></div>
+                    </div>
+
+                    <div class="mb-3 text-start">
+                        <label class="form-label" for="manufacturerId">
+                            <i class="bi bi-building me-2"></i>
+                            <span th:text="#{appliances.manufacturer}">Manufacturer</span>
+                        </label>
+                        <select class="form-select"
+                                id="manufacturerId"
+                                th:field="*{manufacturerId}">
+                            <option th:text="#{appliances.manufacturer.select}" value="">Select manufacturer</option>
+                            <option th:each="manufacturer : ${manufacturers}"
+                                    th:text="${manufacturer.name}"
+                                    th:value="${manufacturer.id}">
+                                Manufacturer
+                            </option>
+                        </select>
+                        <div class="error-msg mt-1" th:errors="*{manufacturerId}"
+                             th:if="${#fields.hasErrors('manufacturerId')}"></div>
+                    </div>
+
+                    <div class="mb-3 text-start">
+                        <label class="form-label" for="powerType">
+                            <i class="bi bi-lightning-charge me-2"></i>
+                            <span th:text="#{appliances.powerType}">Power type</span>
+                        </label>
+                        <select class="form-select"
+                                id="powerType"
+                                th:field="*{powerType}">
+                            <option th:text="#{appliances.powerType.select}" value="">Select power type</option>
+                            <option th:each="powerType : ${powerTypes}"
+                                    th:text="#{${'powerType.' + powerType.name()}}"
+                                    th:value="${powerType}">
+                                Power type
+                            </option>
+                        </select>
+                        <div class="error-msg mt-1" th:errors="*{powerType}"
+                             th:if="${#fields.hasErrors('powerType')}"></div>
+                    </div>
+
+                    <div class="mb-3 text-start">
+                        <label class="form-label" for="characteristic">
+                            <i class="bi bi-list-check me-2"></i>
+                            <span th:text="#{appliances.characteristic}">Characteristic</span>
+                        </label>
+                        <input class="form-control"
+                               id="characteristic"
+                               th:field="*{characteristic}"
+                               th:placeholder="#{appliances.characteristic}"
+                               type="text">
+                        <div class="error-msg mt-1" th:errors="*{characteristic}"
+                             th:if="${#fields.hasErrors('characteristic')}"></div>
+                    </div>
+
+                    <div class="mb-3 text-start">
+                        <label class="form-label" for="description">
+                            <i class="bi bi-card-text me-2"></i>
+                            <span th:text="#{appliances.description.field}">Description</span>
+                        </label>
+                        <textarea class="form-control"
+                                  id="description"
+                                  rows="4"
+                                  th:field="*{description}"
+                                  th:placeholder="#{appliances.description.field}"></textarea>
+                        <div class="error-msg mt-1" th:errors="*{description}"
+                             th:if="${#fields.hasErrors('description')}"></div>
+                    </div>
+
+                    <div class="mb-3 text-start">
+                        <label class="form-label" for="power">
+                            <i class="bi bi-plugin me-2"></i>
+                            <span th:text="#{appliances.power}">Power</span>
+                        </label>
+                        <input class="form-control"
+                               id="power"
+                               th:field="*{power}"
+                               th:placeholder="#{appliances.power}"
+                               type="number">
+                        <div class="error-msg mt-1" th:errors="*{power}" th:if="${#fields.hasErrors('power')}"></div>
+                    </div>
+
+                    <div class="mb-4 text-start">
+                        <label class="form-label" for="price">
+                            <i class="bi bi-cash-stack me-2"></i>
+                            <span th:text="#{appliances.price}">Price</span>
+                        </label>
+                        <input class="form-control"
+                               id="price"
+                               step="1"
+                               th:field="*{price}"
+                               th:placeholder="#{appliances.price}"
+                               type="number">
+                        <div class="error-msg mt-1" th:errors="*{price}" th:if="${#fields.hasErrors('price')}"></div>
+                    </div>
+
+                    <button class="btn btn-primary w-100 mb-3" type="submit">
+                        <span th:text="#{appliances.create.submit}">Create Appliance</span>
+                        <i class="bi bi-check2-circle ms-2"></i>
+                    </button>
+                </form>
+
+                <div class="mt-3">
+                    <a class="text-decoration-none text-primary" th:href="@{/appliancesList}">
+                        <span th:text="#{appliances.back}">Back to appliances</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

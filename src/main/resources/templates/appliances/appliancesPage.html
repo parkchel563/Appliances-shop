@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <title th:text="#{appliances.title}">Appliances</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
+</head>
+<body>
+<div th:replace="~{fragments/header :: main_header('/appliancesList')}"></div>
+<div class="container appliances-wrapper">
+    <div class="mx-auto" style="max-width: 1250px;">
+
+        <div class="alert alert-success mb-4" role="alert" th:if="${successMessage}">
+            <span th:text="#{${successMessage}}">Client deleted successfully</span>
+        </div>
+
+        <div class="alert alert-danger mb-4" role="alert" th:if="${errorMessage}">
+            <span th:text="#{${errorMessage}}">Client cannot be deleted because they have active orders</span>
+        </div>
+
+        <div class="d-flex justify-content-between align-items-start mb-4">
+            <div class="pt-4">
+                <h2 class="mb-1" th:text="#{appliances.heading}">Appliances</h2>
+                <p class="text-secondary mb-0" th:text="#{appliances.description}">
+                    Review all available appliances
+                </p>
+            </div>
+            <div class="d-flex flex-column align-items-end gap-3">
+                <a class="btn btn-success" th:href="@{/create}">
+                    <i class="bi bi-plus-lg me-2"></i>
+                    <span th:text="#{appliances.create.button}">Add Appliance</span>
+                </a>
+                <div class="d-flex flex-wrap gap-2 justify-content-end">
+                    <div th:replace="~{fragments/sorting :: toggle('name', #{sorting.name_label})}"></div>
+                    <div th:replace="~{fragments/sorting :: toggle('id', #{sorting.id})}"></div>
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="row g-4 align-items-start">
+            <div class="col-12 col-lg-3">
+                <form method="get" th:action="@{/appliancesList}" th:object="${criteria}">
+                    <div class="card appliance-item-card border-0 sticky-lg-top" style="top: 20px;">
+                        <div class="card-body p-4">
+                            <h5 class="mb-4 text-light">
+                                <i class="bi bi-funnel me-2"></i>
+                                <span th:text="#{filtering.title}">Filters</span>
+                            </h5>
+
+                            <div class="mb-3">
+                                <label class="form-label text-secondary"
+                                       th:text="#{filtering.label.search}">Search</label>
+                                <input class="form-control bg-dark text-light border-secondary"
+                                       th:field="*{name}"
+                                       th:placeholder="#{filtering.name.or.model}"
+                                       type="text">
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label text-secondary" th:text="#{categories.label}">Category</label>
+                                <select class="form-select bg-dark text-light border-secondary"
+                                        th:field="*{category}">
+                                    <option th:text="#{categories.name}" value="">All categories</option>
+                                    <option th:each="category : ${categories}"
+                                            th:text="#{__${'category.' + category}__}"
+                                            th:value="${category}">
+                                    </option>
+                                </select>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label text-secondary"
+                                       th:text="#{manufacturers.title}">Manufacturer</label>
+                                <select class="form-select bg-dark text-light border-secondary"
+                                        th:field="*{manufacturerId}">
+                                    <option th:text="#{manufacturers.all}" value="">All manufacturers</option>
+                                    <option th:each="manufacturer : ${manufacturers}"
+                                            th:text="${manufacturer.name}"
+                                            th:value="${manufacturer.id}">
+                                    </option>
+                                </select>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label text-secondary" th:text="#{powerTypes.header}">Power
+                                    type</label>
+                                <select class="form-select bg-dark text-light border-secondary"
+                                        th:field="*{powerType}">
+                                    <option th:text="#{powerTypes.all}" value="">All power types</option>
+                                    <option th:each="powerType : ${powerTypes}"
+                                            th:text="#{powerType.__${powerType}__}"
+                                            th:value="${powerType}">
+                                    </option>
+                                </select>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label text-secondary" th:text="#{filtering.minPrice}">Min
+                                    price</label>
+                                <input class="form-control bg-dark text-light border-secondary"
+                                       min="0"
+                                       step="0.01"
+                                       th:field="*{minPrice}"
+                                       th:placeholder="#{filtering.minPrice}"
+                                       type="number">
+                            </div>
+
+                            <div class="mb-4">
+                                <label class="form-label text-secondary" th:text="#{filtering.maxPrice}">Max
+                                    price</label>
+                                <input class="form-control bg-dark text-light border-secondary"
+                                       min="0"
+                                       step="0.01"
+                                       th:field="*{maxPrice}"
+                                       th:placeholder="#{filtering.maxPrice}"
+                                       type="number">
+                            </div>
+
+                            <div class="d-grid gap-2">
+                                <button class="btn btn-primary" type="submit">
+                                    <i class="bi bi-funnel me-2"></i>
+                                    <span th:text="#{filtering.footer}">Filter</span>
+                                </button>
+
+                                <a class="btn btn-outline-light" th:href="@{/appliancesList}">
+                                    <i class="bi bi-arrow-counterclockwise me-2"></i>
+                                    <span th:text="#{filtering.reset}">Reset</span>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <div class="col-12 col-lg-9">
+                <div class="auth-form-wrapper" th:if="${#lists.isEmpty(appliances)}">
+                    <div class="login-card text-center">
+                        <i class="bi bi-box-seam login-icon"></i>
+                        <h3 class="mb-3" th:text="#{appliances.empty}">No appliances found</h3>
+                        <p class="text-secondary mb-0" th:text="#{appliances.empty.description}">
+                            There are no appliances to display at the moment
+                        </p>
+                    </div>
+                </div>
+
+                <div class="row g-4" th:if="${not #lists.isEmpty(appliances)}">
+                    <div class="col-12 col-md-6" th:each="appliance : ${appliances}">
+                        <div class="card appliance-item-card border-0 h-100">
+                            <div class="card-body p-4">
+                                <div class="d-flex flex-column justify-content-between h-100 gap-3">
+
+                                    <div>
+                                        <div class="d-flex flex-wrap align-items-center gap-2 mb-3">
+                                            <span class="appliance-badge" th:text="'#' + ${appliance.id}">#1</span>
+                                            <span class="badge bg-secondary"
+                                                  th:text="#{category.__${appliance.category}__}">CATEGORY</span>
+                                        </div>
+
+                                        <h5 class="mb-3 text-light">
+                                            <i class="bi bi-plug me-2 text-primary"></i>
+                                            <span th:text="${appliance.name}">Appliance name</span>
+                                        </h5>
+
+                                        <p class="text-secondary mb-2">
+                                            <i class="bi bi-cpu me-2"></i>
+                                            <span th:text="#{appliances.model}">Model</span>:
+                                            <span class="text-light" th:text="${appliance.model}">Model X</span>
+                                        </p>
+
+                                        <p class="text-secondary mb-2">
+                                            <i class="bi bi-building me-2"></i>
+                                            <span th:text="#{appliances.manufacturer}">Manufacturer</span>:
+                                            <span class="text-light"
+                                                  th:text="${appliance.manufacturerName}">Samsung</span>
+                                        </p>
+
+                                        <p class="text-secondary mb-0">
+                                            <i class="bi bi-cash-stack me-2"></i>
+                                            <span th:text="#{appliances.price}">Price</span>:
+                                            <span class="text-light" th:text="${appliance.price + ' $'}">$999</span>
+                                        </p>
+                                    </div>
+                                    <div class="position-absolute top-0 end-0 p-3">
+                                        <form class="m-0"
+                                              method="post"
+                                              th:action="@{/delete/{id}(id=${appliance.id})}">
+                                            <input th:name="${_csrf.parameterName}" th:value="${_csrf.token}"
+                                                   type="hidden">
+                                            <button class="btn btn-sm btn-outline-danger" type="submit">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                        </form>
+                                    </div>
+
+                                    <div class="d-flex flex-column align-items-end gap-2 mt-3">
+                                        <a class="btn btn-outline-light px-4"
+                                           th:href="@{/details/{id}(id=${appliance.id})}">
+                                            <i class="bi bi-eye me-2"></i>
+                                            <span th:text="#{appliances.details.heading}">Details</span>
+                                        </a>
+
+                                        <div class="small text-secondary text-end">
+                                            <i class="bi bi-arrow-right-circle me-1"></i>
+                                            <span th:text="#{appliances.details.description}">View full appliance information</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div th:replace="~{fragments/pagination :: controls(${appliancesPage})}"></div>
+    </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
