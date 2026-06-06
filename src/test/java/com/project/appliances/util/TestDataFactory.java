@@ -1,5 +1,7 @@
 package com.project.appliances.util;
 
+import com.project.appliances.dto.appliance.ApplianceCreateDto;
+import com.project.appliances.dto.appliance.ApplianceUpdateDto;
 import com.project.appliances.dto.manufacturer.ManufacturerCreateDto;
 import com.project.appliances.dto.manufacturer.ManufacturerUpdateDto;
 import com.project.appliances.model.Appliance;
@@ -36,6 +38,22 @@ public final class TestDataFactory {
         appliance.setManufacturer(manufacturer);
         appliance.setPrice(BigDecimal.valueOf(100));
         return appliance;
+    }
+
+    public static ApplianceCreateDto createApplianceCreateDto(Long manufacturerId) {
+        ApplianceCreateDto dto = new ApplianceCreateDto();
+        dto.setName("Refrigerator");
+        dto.setManufacturerId(manufacturerId);
+        dto.setPrice(BigDecimal.valueOf(1000));
+        return dto;
+    }
+
+    public static ApplianceUpdateDto createApplianceUpdateDto(Long manufacturerId) {
+        ApplianceUpdateDto dto = new ApplianceUpdateDto();
+        dto.setName("Updated Appliance");
+        dto.setManufacturerId(manufacturerId);
+        dto.setPrice(BigDecimal.valueOf(200));
+        return dto;
     }
 
     public static Client createClient(Long id, String email) {
