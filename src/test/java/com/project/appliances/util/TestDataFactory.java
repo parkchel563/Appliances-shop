@@ -2,6 +2,7 @@ package com.project.appliances.util;
 
 import com.project.appliances.dto.appliance.ApplianceCreateDto;
 import com.project.appliances.dto.appliance.ApplianceUpdateDto;
+import com.project.appliances.dto.client.ClientUpdateProfileDto;
 import com.project.appliances.dto.manufacturer.ManufacturerCreateDto;
 import com.project.appliances.dto.manufacturer.ManufacturerUpdateDto;
 import com.project.appliances.model.Appliance;
@@ -62,6 +63,13 @@ public final class TestDataFactory {
         client.setEmail(email);
         client.setName("Test User");
         return client;
+    }
+
+    public static ClientUpdateProfileDto createClientUpdateDto(String email) {
+        ClientUpdateProfileDto dto = new ClientUpdateProfileDto();
+        dto.setEmail(email);
+        dto.setName("Updated User");
+        return dto;
     }
 
 
