@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <title th:text="#{order.details.title}">Order Details</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
+</head>
+<body>
+<div th:replace="~{fragments/header :: main_header(${currentPage})}"></div>
+<div class="container appliances-wrapper">
+    <div class="mx-auto" style="max-width: 1000px;">
+
+        <div class="d-flex justify-content-end mb-4">
+
+            <a class="btn btn-outline-light px-3 py-2 rounded-pill d-flex align-items-center gap-2 shadow-sm"
+               th:href="@{/my/orders}">
+                <i class="bi bi-arrow-left"></i>
+                <span th:text="#{order.details.back}">Back</span>
+            </a>
+        </div>
+
+
+        <div class="auth-form-wrapper" th:if="${order == null}">
+            <div class="login-card text-center">
+                <i class="bi bi-inbox login-icon"></i>
+                <h3 class="mb-3" th:text="#{orders.empty}">Order not found</h3>
+                <p class="text-secondary mb-0" th:text="#{orders.empty.description}">There is no order to display.</p>
+            </div>
+        </div>
+
+        <div th:if="${order != null}">
+
+            <div class="card appliance-item-card border-0 mb-4">
+                <div class="card-body p-4">
+                    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
+                        <div>
+                            <div class="d-flex flex-wrap align-items-center gap-2 mb-3">
+                                <h2 class="mb-0 text-light">
+                                    <i class="bi bi-receipt-cutoff me-2 text-primary"></i>
+                                    <span th:text="#{order.details.id}">Order</span>
+                                </h2>
+
+                                <span class="appliance-badge" th:text="'#' + ${order.id}">#1</span>
+
+                                <span class="badge rounded-pill border border-primary text-primary px-3 py-2"
+                                      th:text="#{order.status.__${order.status}__}">
+                                    SUBMITTED
+                                </span>
+                            </div>
+
+                            <p class="text-secondary mb-0" th:text="#{order.details.review}">
+                                Review full information about this order and its items
+                            </p>
+                        </div>
+
+                        <div class="alert alert-success mb-4" role="alert" th:if="${successMessage}">
+                            <span th:text="#{${successMessage}}">Client deleted successfully</span>
+                        </div>
+
+                        <div class="alert alert-danger mb-4" role="alert" th:if="${errorMessage}">
+                            <span th:text="#{${errorMessage}}">Client cannot be deleted because they have active orders</span>
+                        </div>
+
+                        <form method="post"
+                              th:action="@{/my/orders/{id}/cancel(id=${order.id})}"
+                              th:if="${order.status == 'NEW' or order.status == 'SUBMITTED'}">
+                            <button class="btn btn-outline-danger" type="submit">
+                                <i class="bi bi-x-circle me-2"></i>
+                                <span th:text="#{orders.details.cancelOrder}">Cancel order</span>
+                            </button>
+                        </form>
+
+                        <div class="text-md-end">
+                            <div class="text-secondary small mb-1" th:text="#{order.details.total}">Total amount</div>
+                            <div class="fw-bold appliance-price fs-3" th:text="${order.total} + ' $'">250.00 $</div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+            <div class="row g-4 mb-4">
+                <div class="col-md-6">
+                    <div class="card appliance-item-card border-0 h-100">
+                        <div class="card-body p-4">
+                            <h4 class="mb-4 text-light">
+                                <i class="bi bi-person-circle me-2 text-primary"></i>
+                                <span th:text="#{order.details.client}">Client Information</span>
+                            </h4>
+
+                            <p class="mb-3 text-secondary">
+                                <strong class="text-light" th:text="#{profile.name}">Name:</strong>
+                                <span th:text="${order.clientName}">John Doe</span>
+                            </p>
+
+                            <p class="mb-0 text-secondary">
+                                <strong class="text-light" th:text="#{profile.email}">Email:</strong>
+                                <span th:text="${order.clientEmail}">john@example.com</span>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="card appliance-item-card border-0 h-100">
+                        <div class="card-body p-4">
+                            <h4 class="mb-4 text-light">
+                                <i class="bi bi-person-badge me-2 text-primary"></i>
+                                <span th:text="#{order.details.employee}">Employee Information</span>
+                            </h4>
+
+                            <p class="mb-3 text-secondary">
+                                <strong class="text-light" th:text="#{profile.name}">Name:</strong>
+                                <span th:text="${order.employeeName != null ? order.employeeName : '—'}">
+                                    Employee Name
+                                </span>
+                            </p>
+
+                            <p class="mb-3 text-secondary">
+                                <strong class="text-light" th:text="#{profile.email}">Email:</strong>
+                                <span th:text="${order.employeeEmail != null ? order.employeeEmail : '—'}">
+                                    employee@example.com
+                                </span>
+                            </p>
+
+                            <p class="mb-0 text-secondary">
+                                <strong class="text-light" th:text="#{profile.department}">Department:</strong>
+                                <span th:text="${order.department != null ? order.department : '—'}">Sales</span>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card appliance-item-card border-0">
+                <div class="card-body p-4">
+                    <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4">
+                        <h4 class="mb-0 text-light">
+                            <i class="bi bi-box-seam me-2 text-primary"></i>
+                            <span th:text="#{order.details.items}">Order Items</span>
+                        </h4>
+                    </div>
+
+                    <div class="text-center py-4" th:if="${#lists.isEmpty(order.orderRowDetails)}">
+                        <i class="bi bi-inbox fs-1 text-secondary"></i>
+                        <p class="text-secondary mt-3 mb-0" th:text="#{order.details.noItemsFound}">No items in this
+                            order.</p>
+                    </div>
+
+                    <div class="d-flex flex-column gap-3" th:if="${not #lists.isEmpty(order.orderRowDetails)}">
+                        <div class="card border-0 bg-dark-subtle"
+                             style="background: rgba(255,255,255,0.03) !important; border-radius: 16px;"
+                             th:each="row : ${order.orderRowDetails}">
+                            <div class="card-body p-4">
+                                <div class="row align-items-center g-3">
+                                    <div class="col-md-5">
+                                        <h5 class="mb-2 text-light">
+                                            <i class="bi bi-cpu me-2 text-primary"></i>
+                                            <span th:text="${row.applianceName}">Blender</span>
+                                        </h5>
+
+                                        <p class="mb-0 text-secondary">
+                                            <strong class="text-light" th:text="#{order.details.model}">Model:</strong>
+                                            <span th:text="${row.model}">HR3652/00</span>
+                                        </p>
+                                    </div>
+
+                                    <div class="col-md-2">
+                                        <p class="mb-0 text-secondary">
+                                            <strong class="text-light"
+                                                    th:text="#{order.details.quantity}">Quantity:</strong>
+                                            <span th:text="${row.quantity}">1</span>
+                                        </p>
+                                    </div>
+
+                                    <div class="col-md-2">
+                                        <p class="mb-0 text-secondary">
+                                            <strong class="text-light" th:text="#{order.details.price}">Price:</strong>
+                                            <span th:text="${row.price} + ' $'">129.00 $</span>
+                                        </p>
+                                    </div>
+
+                                    <div class="col-md-3 text-md-end">
+                                        <div class="text-secondary small mb-1" th:text="#{order.details.ItemTotal}">Item
+                                            total
+                                        </div>
+                                        <div class="fw-bold appliance-price fs-5"
+                                             th:text="${row.total} + ' $'">
+                                            299.00 $
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+</body>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</html>

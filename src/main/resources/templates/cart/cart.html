@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <title th:text="#{cart.title}">Cart</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
+</head>
+<body>
+<div th:replace="~{fragments/header :: main_header('/cart')}"></div>
+<div class="container appliances-wrapper">
+    <div class="mx-auto" style="max-width: 1250px;">
+        <div class="alert alert-success alert-dismissible fade show text-center"
+             id="successAlert"
+             th:if="${successMessage}">
+
+            <i class="bi bi-check-circle me-2"></i>
+            <span th:text="#{${successMessage}}">Added to cart</span>
+
+            <button class="btn-close" data-bs-dismiss="alert" type="button"></button>
+        </div>
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h2 class="mb-1" th:text="#{cart.heading}">My Cart</h2>
+                <p class="text-secondary mb-0" th:text="#{cart.description}">
+                    Review your selected items before checkout
+                </p>
+            </div>
+
+            <a class="btn btn-outline-light" th:href="@{/}">
+                <i class="bi bi-arrow-left me-2"></i>
+                <span th:text="#{cart.backToCatalog}">Back to catalog</span>
+            </a>
+        </div>
+
+        <div class="auth-form-wrapper" th:if="${cart.orderRows == null or #lists.isEmpty(cart.orderRows)}">
+            <div class="login-card text-center">
+                <i class="bi bi-cart-x login-icon"></i>
+                <h3 class="mb-3" th:text="#{cart.empty}">Your cart is empty</h3>
+                <p class="text-secondary mb-4" th:text="#{cart.empty.description}">
+                    Add a few appliances to place an order
+                </p>
+                <a class="btn btn-primary" th:href="@{/}">
+                    <i class="bi bi-shop me-2"></i>
+                    <span th:text="#{cart.goShopping}">Go shopping</span>
+                </a>
+            </div>
+        </div>
+
+        <div class="row g-4" th:if="${cart.orderRows != null and not #lists.isEmpty(cart.orderRows)}">
+            <div class="col-12 col-lg-8">
+                <div class="card appliance-item-card border-0">
+                    <div class="card-body p-4">
+                        <div class="d-flex flex-column gap-4">
+
+                            <div class="border-bottom pb-4 cart-row" th:each="row : ${cart.orderRows}">
+                                <div class="d-flex flex-column flex-md-row justify-content-between gap-3">
+                                    <div class="flex-grow-1">
+                                        <h5 class="mb-2 text-light" th:text="${row.applianceName}">Microwave Oven</h5>
+
+                                        <p class="text-secondary mb-2">
+                                            <span th:text="#{cart.model}">Model</span>:
+                                            <span class="text-light" th:text="${row.model}">MW-100</span>
+                                        </p>
+
+                                        <p class="mb-0">
+                                            <span class="appliance-price item-price"
+                                                  th:data-price="${row.price}"
+                                                  th:text="${row.price} + ' $'">149.00 $</span>
+                                        </p>
+                                    </div>
+
+                                    <div class="d-flex flex-column align-items-md-end gap-3">
+                                        <form class="d-flex align-items-center gap-2" method="post"
+                                              th:action="@{/cart/update/{id}(id=${row.id})}">
+                                            <input th:name="${_csrf.parameterName}" th:value="${_csrf.token}"
+                                                   type="hidden">
+                                            <label class="text-secondary small mb-0"
+                                                   th:text="#{cart.quantity}">Qty</label>
+                                            <input class="form-control quantity-input"
+                                                   min="1"
+                                                   name="quantity"
+                                                   onchange="this.form.submit()"
+                                                   style="width: 90px;"
+                                                   th:attr="oninput=|updateRowTotal(this, ${row.price})|"
+                                                   th:value="${row.quantity}"
+                                                   type="number">
+                                        </form>
+
+                                        <div class="text-md-end">
+                                            <div class="text-secondary small mb-1" th:text="#{cart.rowTotal}">
+                                                Row total
+                                            </div>
+                                            <div class="fw-bold appliance-price row-total"
+                                                 th:text="${row.total} + ' $'">298.00 $
+                                            </div>
+                                        </div>
+
+                                        <form method="post" th:action="@{/cart/remove/{id}(id=${row.id})}">
+                                            <input th:name="${_csrf.parameterName}" th:value="${_csrf.token}"
+                                                   type="hidden">
+                                            <button class="btn btn-outline-danger btn-sm" type="submit">
+                                                <i class="bi bi-trash me-1"></i>
+                                                <span th:text="#{cart.remove}">Remove</span>
+                                            </button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12 col-lg-4">
+                <div class="card appliance-item-card border-0">
+                    <div class="card-body p-4">
+                        <h4 class="mb-4 text-light" th:text="#{cart.summary}">Order Summary</h4>
+
+                        <div class="d-flex justify-content-between mb-3">
+                            <span class="text-secondary" th:text="#{cart.total}">Total</span>
+                            <span class="fw-bold appliance-price cart-total"
+                                  th:text="${cart.total} + ' $'">447.00 $</span>
+                        </div>
+
+                        <form method="post" th:action="@{/cart/checkout}">
+                            <input th:name="${_csrf.parameterName}" th:value="${_csrf.token}" type="hidden">
+                            <button class="btn btn-primary w-100" type="submit">
+                                <i class="bi bi-bag-check me-2"></i>
+                                <span th:text="#{cart.checkout}">Checkout</span>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+<script>
+    function updateRowTotal(input, price) {
+        const quantity = parseFloat(input.value) || 0;
+        const total = price * quantity;
+
+        const rowContainer = input.closest('.cart-row');
+        if (!rowContainer) return;
+
+        const rowTotalElement = rowContainer.querySelector('.row-total');
+        if (rowTotalElement) {
+            rowTotalElement.innerText = total.toFixed(2) + ' $';
+        }
+
+        updateCartTotal();
+    }
+
+    function updateCartTotal() {
+        const rowTotals = document.querySelectorAll('.row-total');
+        let cartTotal = 0;
+
+        rowTotals.forEach(element => {
+            const value = parseFloat(element.innerText.replace('$', '').trim()) || 0;
+            cartTotal += value;
+        });
+
+        const cartTotalElement = document.querySelector('.cart-total');
+        if (cartTotalElement) {
+            cartTotalElement.innerText = cartTotal.toFixed(2) + ' $';
+        }
+    }
+</script>
+</body>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</html>
