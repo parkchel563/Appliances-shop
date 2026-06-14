@@ -5,11 +5,9 @@ import com.project.appliances.dto.appliance.ApplianceUpdateDto;
 import com.project.appliances.dto.client.ClientUpdateProfileDto;
 import com.project.appliances.dto.manufacturer.ManufacturerCreateDto;
 import com.project.appliances.dto.manufacturer.ManufacturerUpdateDto;
-import com.project.appliances.model.Appliance;
-import com.project.appliances.model.Client;
-import com.project.appliances.model.Employee;
-import com.project.appliances.model.Manufacturer;
+import com.project.appliances.model.*;
 import java.math.BigDecimal;
+import java.util.HashSet;
 
 public final class TestDataFactory {
 
@@ -57,6 +55,27 @@ public final class TestDataFactory {
         return dto;
     }
 
+    public static Orders createTestCart() {
+        Orders cart = new Orders();
+        cart.setId(10L);
+        cart.setStatus(OrderStatus.NEW);
+        cart.setOrderRows(new HashSet<>());
+        cart.setTotal(BigDecimal.ZERO);
+        return cart;
+    }
+
+    public static OrderRow createOrderRow(Long id, BigDecimal price) {
+        Appliance appliance = createAppliance();
+        appliance.setPrice(price);
+
+        OrderRow row = new OrderRow();
+        row.setId(id);
+        row.setAppliance(appliance);
+        row.setQuantity(1L);
+        row.setTotal(price);
+        return row;
+    }
+
     public static Client createClient(Long id, String email) {
         Client client = new Client();
         client.setId(id);
@@ -71,7 +90,6 @@ public final class TestDataFactory {
         dto.setName("Updated User");
         return dto;
     }
-
 
     public static Employee createEmployee(Long id, String email) {
         Employee employee = new Employee();
@@ -91,6 +109,13 @@ public final class TestDataFactory {
         ManufacturerUpdateDto dto = new ManufacturerUpdateDto();
         dto.setName(name);
         return dto;
+    }
+
+    public static Orders createOrder(Long id, OrderStatus status) {
+        Orders order = new Orders();
+        order.setId(id);
+        order.setStatus(status);
+        return order;
     }
 
 }
