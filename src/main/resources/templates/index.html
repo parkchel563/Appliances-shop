@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="en"
-      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
       xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
@@ -183,21 +182,12 @@
                             </p>
 
 
-                            <div class="mt-auto d-flex gap-2" sec:authorize="isAnonymous()">
-                                <a class="btn btn-outline-light w-100" th:href="@{/login}">
-                                    <i class="bi bi-cart-plus me-2"></i>
-                                    <span th:text="#{appliances.loginToOrder}">Login to order</span>
+                            <div class="mt-auto pt-3">
+                                <a class="btn btn-outline-primary w-100"
+                                   th:href="@{/appliance/{id}(id=${appliance.id})}">
+                                    <i class="bi bi-info-circle me-2"></i>
+                                    <span th:text="#{appliances.viewDetails}">View Details</span>
                                 </a>
-                            </div>
-
-                            <div class="mt-auto d-flex gap-2" sec:authorize="hasAuthority('ROLE_CLIENT')">
-                                <form class="w-100" method="post" th:action="@{/cart/add/{id}(id=${appliance.id})}">
-                                    <input th:name="${_csrf.parameterName}" th:value="${_csrf.token}" type="hidden">
-                                    <button class="btn btn-primary w-100" type="submit">
-                                        <i class="bi bi-cart-plus me-2"></i>
-                                        <span th:text="#{appliances.addToOrder}">Add to order</span>
-                                    </button>
-                                </form>
                             </div>
                         </div>
                     </div>

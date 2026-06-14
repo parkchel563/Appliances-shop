@@ -1,9 +1,6 @@
 package com.project.appliances.service.impl;
 
-import com.project.appliances.dto.appliance.ApplianceCreateDto;
-import com.project.appliances.dto.appliance.ApplianceDto;
-import com.project.appliances.dto.appliance.ApplianceSearchCriteria;
-import com.project.appliances.dto.appliance.ApplianceUpdateDto;
+import com.project.appliances.dto.appliance.*;
 import com.project.appliances.exception.ApplianceNotFoundException;
 import com.project.appliances.exception.ManufacturerNotFoundException;
 import com.project.appliances.mapper.ApplianceMapper;
@@ -16,10 +13,12 @@ import com.project.appliances.service.interfaces.ApplianceService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Slf4j
@@ -46,6 +45,14 @@ public class ApplianceServiceImpl implements ApplianceService {
         return applianceRepository.findAll(
                 ApplianceSpecification.createFilterSpecification(criteria), pageable
         ).map(applianceMapper::toDto);
+    }
+
+    @Override
+    public ApplianceCustomerDetailsDto getCustomerApplianceDetails(Long id) {
+        Appliance appliance = applianceRepository.findById(id)
+                .orElseThrow(() -> new ApplianceNotFoundException(id));
+
+        return applianceMapper.toCustomerDetailsDto(appliance);
     }
 
     @Override
@@ -99,6 +106,50 @@ public class ApplianceServiceImpl implements ApplianceService {
 
         applianceRepository.delete(appliance);
         log.info("BUSINESS EVENT | Appliance deleted | id={} name={}", id, appliance.getName());
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<ApplianceDto> getSimilarAppliances(Long id) {
+        Appliance appliance = applianceRepository.findById(id)
+                .orElseThrow(() -> new ApplianceNotFoundException(id));
+
+        int limit = 3;
+
+        // Вытаскиваем ключевое слово для поиска
+        String searchKeyword = appliance.getName();
+        if (searchKeyword != null && searchKeyword.contains(" ")) {
+            String[] parts = searchKeyword.split(" ");
+            searchKeyword = parts[parts.length - 1]; // берем последнее слово (например, "Laptop" из "Gaming Laptop")
+        }
+
+        // 1. Ищем товары, содержащие ключевое слово, от того же производителя
+        List<Appliance> similarAppliances = applianceRepository.findByNameContainingIgnoreCaseAndManufacturerIdAndIdNot(
+                searchKeyword,
+                appliance.getManufacturer().getId(),
+                id,
+                PageRequest.of(0, limit)
+        ).getContent();
+
+        List<Appliance> resultList = new ArrayList<>(similarAppliances);
+
+        // 2. Fallback: если не хватает 3 штук, добираем товары с таким же ключевым словом от других производителей
+        if (resultList.size() < limit) {
+            int neededCount = limit - resultList.size();
+
+            List<Appliance> otherManufacturersAppliances = applianceRepository.findByNameContainingIgnoreCaseAndManufacturerIdNotAndIdNot(
+                    searchKeyword,
+                    appliance.getManufacturer().getId(),
+                    id,
+                    PageRequest.of(0, neededCount)
+            ).getContent();
+
+            resultList.addAll(otherManufacturersAppliances);
+        }
+
+        return resultList.stream()
+                .map(applianceMapper::toDto)
+                .toList();
     }
 }
 

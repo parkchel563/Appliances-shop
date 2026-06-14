@@ -151,6 +151,16 @@ public class ApplianceController {
         return "redirect:/appliancesList";
     }
 
+    @GetMapping("/appliance/{id}")
+    public String showCustomerDetails(@PathVariable Long id, Model model) {
+        model.addAttribute("appliance", applianceService.getCustomerApplianceDetails(id));
+        // Добавляем список похожих товаров
+        model.addAttribute("similarAppliances", applianceService.getSimilarAppliances(id));
+        model.addAttribute("currentPage", "/appliance/" + id);
+
+        return "appliances/customerDetailsPage";
+    }
+
     @GetMapping("/access-denied")
     public void handleAccessDenied() {
         throw new AccessDeniedException("Access is denied");

@@ -1,6 +1,7 @@
 package com.project.appliances.mapper.MapperImpl;
 
 import com.project.appliances.dto.appliance.ApplianceCreateDto;
+import com.project.appliances.dto.appliance.ApplianceCustomerDetailsDto;
 import com.project.appliances.dto.appliance.ApplianceDto;
 import com.project.appliances.dto.appliance.ApplianceUpdateDto;
 import com.project.appliances.mapper.ApplianceMapper;
@@ -57,6 +58,16 @@ public class ApplianceMapperImpl implements ApplianceMapper {
         appliance.setPower(dto.getPower());
         appliance.setPrice(dto.getPrice());
         return appliance;
+    }
+
+    @Override
+    public ApplianceCustomerDetailsDto toCustomerDetailsDto(Appliance appliance) {
+        ApplianceCustomerDetailsDto dto = modelMapper.map(appliance, ApplianceCustomerDetailsDto.class);
+        if (appliance.getManufacturer() != null) {
+            dto.setManufacturerName(appliance.getManufacturer().getName());
+            dto.setManufacturerId(appliance.getManufacturer().getId());
+        }
+        return dto;
     }
 
 

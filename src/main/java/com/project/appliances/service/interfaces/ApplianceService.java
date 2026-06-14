@@ -1,9 +1,6 @@
 package com.project.appliances.service.interfaces;
 
-import com.project.appliances.dto.appliance.ApplianceCreateDto;
-import com.project.appliances.dto.appliance.ApplianceDto;
-import com.project.appliances.dto.appliance.ApplianceSearchCriteria;
-import com.project.appliances.dto.appliance.ApplianceUpdateDto;
+import com.project.appliances.dto.appliance.*;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -21,4 +18,8 @@ public interface ApplianceService {
     void deleteAppliance(Long id);
 
     Page<ApplianceDto> findAll(ApplianceSearchCriteria criteria, Pageable pageable);
+
+    ApplianceCustomerDetailsDto getCustomerApplianceDetails(Long id);
+
+    List<ApplianceDto> getSimilarAppliances(Long id);
 }
