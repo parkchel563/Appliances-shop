@@ -6,6 +6,7 @@ import com.project.appliances.dto.employee.EmployeeUpdateProfileDto;
 import com.project.appliances.exception.EmployeeNotFoundException;
 import com.project.appliances.mapper.EmployeeMapper;
 import com.project.appliances.model.Employee;
+import com.project.appliances.model.OrderStatus;
 import com.project.appliances.repository.ClientRepository;
 import com.project.appliances.repository.EmployeeRepository;
 import com.project.appliances.repository.OrdersRepository;
@@ -96,5 +97,25 @@ public class EmployeeServiceImpl implements EmployeeService {
         log.info("BUSINESS EVENT | Password generated for employee | id={}", id);
 
         return rawPassword;
+    }
+
+    @Override
+    @Transactional
+    public boolean deleteEmployeeProfile(Long id, String currentUserEmail) {
+        Employee employee = employeeRepository.findById(id)
+                .orElseThrow(() -> new EmployeeNotFoundException(id));
+
+        boolean hasOrders = ordersRepository.existsByEmployeeIdAndStatusIn(id, List.of(OrderStatus.PROCESSING, OrderStatus.READY, OrderStatus.COMPLETED, OrderStatus.CANCELED));
+
+        if (hasOrders) {
+            log.warn("BUSINESS EVENT | Cannot delete employee with orders | id={}", id);
+            throw new IllegalStateException("Employee has orders");
+        }
+
+        boolean deleteSelf = employee.getEmail().equals(currentUserEmail);
+
+        employeeRepository.delete(employee);
+        log.info("BUSINESS EVENT | Client deleted | id={} email={}", id, employee.getEmail());
+        return deleteSelf;
     }
 }

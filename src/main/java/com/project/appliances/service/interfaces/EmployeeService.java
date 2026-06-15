@@ -18,4 +18,6 @@ public interface EmployeeService {
     void updateEmployeeProfile(Long id, EmployeeUpdateProfileDto dto);
 
     String generatePassword(Long id);
+
+    boolean deleteEmployeeProfile(Long id, String currentUserEmail);
 }

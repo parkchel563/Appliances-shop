@@ -1,7 +1,7 @@
 INSERT INTO orders (employee_id, client_id, status, total)
 VALUES (NULL, 1, 'SUBMITTED', 1098.00),
        (NULL, 2, 'SUBMITTED', 1378.00),
-       (3, 3, 'PROCESSING', 299.00),
+       (1, 3, 'PROCESSING', 299.00),
        (4, 4, 'READY', 718.00),
        (5, 5, 'COMPLETED', 649.00),
        (6, 6, 'CANCELED', 89.00),
