@@ -8,11 +8,9 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-import com.project.appliances.dto.appliance.ApplianceCreateDto;
-import com.project.appliances.dto.appliance.ApplianceDto;
-import com.project.appliances.dto.appliance.ApplianceSearchCriteria;
-import com.project.appliances.dto.appliance.ApplianceUpdateDto;
+import com.project.appliances.dto.appliance.*;
 import com.project.appliances.dto.manufacturer.ManufacturerDto;
+import com.project.appliances.exception.ApplianceNotFoundException;
 import com.project.appliances.model.Category;
 import com.project.appliances.model.PowerType;
 import com.project.appliances.service.interfaces.ApplianceService;
@@ -234,6 +232,47 @@ class ApplianceControllerTest {
                 .andExpect(redirectedUrl("/appliancesList"))
                 .andExpect(flash().attribute("errorMessage", "appliance.delete.denied"));
     }
+
+    @Test
+    @WithMockUser
+    void showCustomerDetails_ShouldReturnCustomerDetailsPage_WhenApplianceExists() throws Exception {
+        Long applianceId = 1L;
+
+        ApplianceCustomerDetailsDto mockAppliance = new ApplianceCustomerDetailsDto();
+        List<ApplianceDto> mockSimilar = List.of(new ApplianceDto());
+
+        when(applianceService.getCustomerApplianceDetails(applianceId)).thenReturn(mockAppliance);
+        when(applianceService.getSimilarAppliances(applianceId)).thenReturn(mockSimilar);
+
+        mockMvc.perform(get("/appliance/{id}", applianceId))
+                .andExpect(status().isOk())
+                .andExpect(view().name("appliances/customerDetailsPage"))
+                .andExpect(model().attribute("appliance", mockAppliance))
+                .andExpect(model().attribute("similarAppliances", mockSimilar))
+                .andExpect(model().attribute("currentPage", "/appliance/" + applianceId));
+
+        verify(applianceService).getCustomerApplianceDetails(applianceId);
+        verify(applianceService).getSimilarAppliances(applianceId);
+    }
+
+    @Test
+    @WithMockUser
+    void showCustomerDetails_ShouldReturnErrorOrRedirect_WhenApplianceNotFound() throws Exception {
+        Long applianceId = 999L;
+
+        when(applianceService.getCustomerApplianceDetails(applianceId))
+                .thenThrow(new ApplianceNotFoundException(applianceId));
+
+        mockMvc.perform(get("/appliance/{id}", applianceId))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void showCustomerDetails_ShouldReturnUnauthorized_WhenUserIsAnonymous() throws Exception {
+        mockMvc.perform(get("/appliance/1"))
+                .andExpect(status().isUnauthorized());
+    }
+
 
     @Test
     @WithMockUser

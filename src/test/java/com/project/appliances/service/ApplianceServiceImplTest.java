@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
 import com.project.appliances.dto.appliance.ApplianceCreateDto;
+import com.project.appliances.dto.appliance.ApplianceCustomerDetailsDto;
 import com.project.appliances.dto.appliance.ApplianceDto;
 import com.project.appliances.dto.appliance.ApplianceUpdateDto;
 import com.project.appliances.exception.ApplianceNotFoundException;
@@ -177,7 +178,7 @@ class ApplianceServiceImplTest {
         verify(applianceRepository).findById(1L);
         verify(applianceRepository).delete(appliance);
     }
-    
+
     @Test
     void shouldThrowWhenApplianceNotFoundOnDelete() {
         when(applianceRepository.findById(1L)).thenReturn(Optional.empty());
@@ -205,6 +206,119 @@ class ApplianceServiceImplTest {
 
         verify(applianceRepository).findAll(any(Specification.class), eq(pageable));
         verify(applianceMapper).toDto(appliance);
+    }
+
+    @Test
+    void getCustomerApplianceDetails_ShouldReturnDetailsDto_WhenApplianceExists() {
+        Long applianceId = 1L;
+        Appliance appliance = TestDataFactory.createAppliance();
+        ApplianceCustomerDetailsDto expectedDto = new ApplianceCustomerDetailsDto();
+
+        when(applianceRepository.findById(applianceId)).thenReturn(Optional.of(appliance));
+        when(applianceMapper.toCustomerDetailsDto(appliance)).thenReturn(expectedDto);
+
+        ApplianceCustomerDetailsDto result = applianceServiceImpl.getCustomerApplianceDetails(applianceId);
+
+        assertEquals(expectedDto, result);
+        verify(applianceRepository).findById(applianceId);
+        verify(applianceMapper).toCustomerDetailsDto(appliance);
+    }
+
+    @Test
+    void getCustomerApplianceDetails_ShouldThrowApplianceNotFoundException_WhenNotFound() {
+        Long applianceId = 1L;
+        when(applianceRepository.findById(applianceId)).thenReturn(Optional.empty());
+
+        assertThrows(ApplianceNotFoundException.class,
+                     () -> applianceServiceImpl.getCustomerApplianceDetails(applianceId));
+
+        verify(applianceRepository).findById(applianceId);
+        verifyNoInteractions(applianceMapper);
+    }
+
+    @Test
+    void getSimilarAppliances_ShouldThrowApplianceNotFoundException_WhenNotFound() {
+        Long applianceId = 1L;
+        when(applianceRepository.findById(applianceId)).thenReturn(Optional.empty());
+
+        assertThrows(ApplianceNotFoundException.class,
+                     () -> applianceServiceImpl.getSimilarAppliances(applianceId));
+
+        verifyNoMoreInteractions(applianceRepository);
+    }
+
+    @Test
+    void getSimilarAppliances_ShouldReturnFromSameManufacturer_WhenEnoughFound() {
+        Long targetId = 1L;
+        Manufacturer manufacturer = new Manufacturer();
+        manufacturer.setId(10L);
+
+        Appliance targetAppliance = new Appliance();
+        targetAppliance.setId(targetId);
+        targetAppliance.setName("Gaming Laptop");
+        targetAppliance.setManufacturer(manufacturer);
+
+        Appliance sim1 = new Appliance();
+        Appliance sim2 = new Appliance();
+        Appliance sim3 = new Appliance();
+        Page<Appliance> sameBrandPage = new PageImpl<>(List.of(sim1, sim2, sim3));
+
+        ApplianceDto mockDto = new ApplianceDto();
+
+        when(applianceRepository.findById(targetId)).thenReturn(Optional.of(targetAppliance));
+        when(applianceRepository.findByNameContainingIgnoreCaseAndManufacturerIdAndIdNot(
+                eq("Laptop"), eq(10L), eq(targetId), eq(PageRequest.of(0, 3))))
+                .thenReturn(sameBrandPage);
+        when(applianceMapper.toDto(any(Appliance.class))).thenReturn(mockDto);
+
+        List<ApplianceDto> result = applianceServiceImpl.getSimilarAppliances(targetId);
+
+        assertEquals(3, result.size());
+        verify(applianceRepository, never()).findByNameContainingIgnoreCaseAndManufacturerIdNotAndIdNot(
+                anyString(), anyLong(), anyLong(), any(Pageable.class));
+        verify(applianceMapper, times(3)).toDto(any(Appliance.class));
+    }
+
+    @Test
+    void getSimilarAppliances_ShouldUseFallback_WhenNotEnoughFromSameManufacturer() {
+        Long targetId = 1L;
+        Manufacturer manufacturer = new Manufacturer();
+        manufacturer.setId(10L);
+
+        Appliance targetAppliance = new Appliance();
+        targetAppliance.setId(targetId);
+        targetAppliance.setName("Fridge");
+        targetAppliance.setManufacturer(manufacturer);
+
+        Appliance sameBrandAppliance = new Appliance();
+        Page<Appliance> sameBrandPage = new PageImpl<>(List.of(sameBrandAppliance));
+
+        Appliance otherBrand1 = new Appliance();
+        Appliance otherBrand2 = new Appliance();
+        Page<Appliance> otherBrandPage = new PageImpl<>(List.of(otherBrand1, otherBrand2));
+
+        ApplianceDto mockDto = new ApplianceDto();
+
+        when(applianceRepository.findById(targetId)).thenReturn(Optional.of(targetAppliance));
+
+        when(applianceRepository.findByNameContainingIgnoreCaseAndManufacturerIdAndIdNot(
+                eq("Fridge"), eq(10L), eq(targetId), eq(PageRequest.of(0, 3))))
+                .thenReturn(sameBrandPage);
+
+        when(applianceRepository.findByNameContainingIgnoreCaseAndManufacturerIdNotAndIdNot(
+                eq("Fridge"), eq(10L), eq(targetId), eq(PageRequest.of(0, 2))))
+                .thenReturn(otherBrandPage);
+
+        when(applianceMapper.toDto(any(Appliance.class))).thenReturn(mockDto);
+
+        List<ApplianceDto> result = applianceServiceImpl.getSimilarAppliances(targetId);
+
+        assertEquals(3, result.size());
+        verify(applianceRepository).findByNameContainingIgnoreCaseAndManufacturerIdAndIdNot("Fridge", 10L, targetId,
+                                                                                            PageRequest.of(0, 3));
+        verify(applianceRepository).findByNameContainingIgnoreCaseAndManufacturerIdNotAndIdNot("Fridge", 10L, targetId,
+                                                                                               PageRequest.of(0, 2));
+        verify(applianceMapper, times(3)).toDto(any(Appliance.class));
     }
 
 }
