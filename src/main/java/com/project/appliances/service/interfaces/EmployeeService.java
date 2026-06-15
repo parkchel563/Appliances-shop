@@ -1,5 +1,6 @@
 package com.project.appliances.service.interfaces;
 
+import com.project.appliances.dto.employee.EmployeeCreateDto;
 import com.project.appliances.dto.employee.EmployeeDto;
 import com.project.appliances.dto.employee.EmployeeSearchCriteria;
 import com.project.appliances.dto.employee.EmployeeUpdateProfileDto;
@@ -20,4 +21,6 @@ public interface EmployeeService {
     String generatePassword(Long id);
 
     boolean deleteEmployeeProfile(Long id, String currentUserEmail);
+
+    String createEmployee(EmployeeCreateDto dto);
 }

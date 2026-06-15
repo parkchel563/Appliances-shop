@@ -1,5 +1,6 @@
 package com.project.appliances.service.impl;
 
+import com.project.appliances.dto.employee.EmployeeCreateDto;
 import com.project.appliances.dto.employee.EmployeeDto;
 import com.project.appliances.dto.employee.EmployeeSearchCriteria;
 import com.project.appliances.dto.employee.EmployeeUpdateProfileDto;
@@ -117,5 +118,25 @@ public class EmployeeServiceImpl implements EmployeeService {
         employeeRepository.delete(employee);
         log.info("BUSINESS EVENT | Client deleted | id={} email={}", id, employee.getEmail());
         return deleteSelf;
+    }
+
+    @Override
+    @Transactional
+    public String createEmployee(EmployeeCreateDto dto) {
+        if (clientRepository.existsByEmail(dto.getEmail()) || employeeRepository.existsByEmail(dto.getEmail())) {
+            log.warn("SECURITY EVENT | Registration attempt with already used email '{}'", dto.getEmail());
+            throw new IllegalStateException("Email already in use");
+        }
+
+        String rawPassword = passwordGenerator.generatePassword(10);
+
+        Employee employee = employeeMapper.createToEntity(dto);
+
+        employee.setPassword(passwordEncoder.encode(rawPassword));
+
+        employeeRepository.save(employee);
+        log.info("BUSINESS EVENT | Employee created | email={}", dto.getEmail());
+
+        return rawPassword;
     }
 }

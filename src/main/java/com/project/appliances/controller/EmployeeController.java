@@ -1,5 +1,6 @@
 package com.project.appliances.controller;
 
+import com.project.appliances.dto.employee.EmployeeCreateDto;
 import com.project.appliances.dto.employee.EmployeeDto;
 import com.project.appliances.dto.employee.EmployeeSearchCriteria;
 import com.project.appliances.dto.employee.EmployeeUpdateProfileDto;
@@ -103,5 +104,35 @@ public class EmployeeController {
         }
 
         return "redirect:/employees";
+    }
+
+    @GetMapping("/create")
+    public String createEmployee(Model model) {
+        model.addAttribute("employeeCreateDto", new EmployeeCreateDto());
+        model.addAttribute("currentPage", "/employees/create");
+
+        return "employee/createEmployeePage";
+    }
+
+    @PostMapping("/create")
+    public String createEmployee(@Valid @ModelAttribute("employeeCreateDto") EmployeeCreateDto employeeCreateDto,
+                                 BindingResult bindingResult, Model model,
+                                 RedirectAttributes redirectAttributes) {
+
+        model.addAttribute("currentPage", "/employees/create");
+
+        if (bindingResult.hasErrors()) {
+            return "employee/createEmployeePage";
+        }
+
+        try {
+            String generatedPassword = employeeService.createEmployee(employeeCreateDto);
+            redirectAttributes.addFlashAttribute("successMessage", "employees.create.success");
+            redirectAttributes.addFlashAttribute("generatedPassword", generatedPassword);
+            return "redirect:/employees/create";
+        } catch (IllegalStateException e) {
+            bindingResult.rejectValue("email", "validation.email.exist");
+            return "employee/createEmployeePage";
+        }
     }
 }
