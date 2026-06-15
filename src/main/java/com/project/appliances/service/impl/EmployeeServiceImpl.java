@@ -2,7 +2,10 @@ package com.project.appliances.service.impl;
 
 import com.project.appliances.dto.employee.EmployeeDto;
 import com.project.appliances.dto.employee.EmployeeSearchCriteria;
+import com.project.appliances.dto.employee.EmployeeUpdateProfileDto;
+import com.project.appliances.exception.EmployeeNotFoundException;
 import com.project.appliances.mapper.EmployeeMapper;
+import com.project.appliances.model.Employee;
 import com.project.appliances.repository.ClientRepository;
 import com.project.appliances.repository.EmployeeRepository;
 import com.project.appliances.repository.OrdersRepository;
@@ -44,5 +47,54 @@ public class EmployeeServiceImpl implements EmployeeService {
     public Page<EmployeeDto> findAll(EmployeeSearchCriteria criteria, Pageable pageable) {
         return employeeRepository.findAll(EmployeeSpecification.createSpecification(criteria), pageable)
                 .map(employeeMapper::toDto);
+    }
+
+    @Override
+    @Transactional
+    public EmployeeUpdateProfileDto getEmployeeProfile(Long id) {
+        Employee employee = employeeRepository.findById(id)
+                .orElseThrow(() -> new EmployeeNotFoundException(id));
+
+        return employeeMapper.toUpdateProfileDto(employee);
+    }
+
+    @Override
+    @Transactional
+    public void updateEmployeeProfile(Long id, EmployeeUpdateProfileDto dto) {
+        Employee employee = employeeRepository.findById(id)
+                .orElseThrow(() -> new EmployeeNotFoundException(id));
+
+        String newEmail = dto.getEmail();
+
+        if (!employee.getEmail().equals(newEmail)) {
+            if (employeeRepository.existsByEmail(newEmail)
+                    || clientRepository.existsByEmail(newEmail)) {
+
+                log.warn("BUSINESS EVENT | Email already in use | id={} email={}", id, newEmail);
+                throw new IllegalStateException("Email already exists");
+            }
+        }
+
+        employeeMapper.toUpdateEntity(dto, employee);
+        employeeRepository.save(employee);
+
+        log.info("BUSINESS EVENT | Employee profile updated | id={} email={}", id, newEmail);
+    }
+
+    @Override
+    @Transactional
+    public String generatePassword(Long id) {
+        Employee employee = employeeRepository.findById(id)
+                .orElseThrow(() -> new EmployeeNotFoundException(id));
+
+        String rawPassword = passwordGenerator.generatePassword(10);
+
+        employee.setPassword(passwordEncoder.encode(rawPassword));
+
+        employeeRepository.save(employee);
+
+        log.info("BUSINESS EVENT | Password generated for employee | id={}", id);
+
+        return rawPassword;
     }
 }
