@@ -3,6 +3,7 @@ package com.project.appliances.util;
 import com.project.appliances.dto.appliance.ApplianceCreateDto;
 import com.project.appliances.dto.appliance.ApplianceUpdateDto;
 import com.project.appliances.dto.client.ClientUpdateProfileDto;
+import com.project.appliances.dto.employee.EmployeeUpdateProfileDto;
 import com.project.appliances.dto.manufacturer.ManufacturerCreateDto;
 import com.project.appliances.dto.manufacturer.ManufacturerUpdateDto;
 import com.project.appliances.model.*;
@@ -97,6 +98,13 @@ public final class TestDataFactory {
         employee.setEmail(email);
         employee.setName("Test Employee");
         return employee;
+    }
+
+    public static EmployeeUpdateProfileDto createEmployeeUpdateDto(String email) {
+        EmployeeUpdateProfileDto dto = new EmployeeUpdateProfileDto();
+        dto.setEmail(email);
+        dto.setName("Updated Employee");
+        return dto;
     }
 
     public static ManufacturerCreateDto createManufacturerCreateDto(String name) {
