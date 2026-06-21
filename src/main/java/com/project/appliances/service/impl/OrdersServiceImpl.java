@@ -3,6 +3,7 @@ package com.project.appliances.service.impl;
 
 import com.project.appliances.dto.orders.OrderDetailsDto;
 import com.project.appliances.dto.orders.OrdersAdminDto;
+import com.project.appliances.dto.orders.OrdersSearchCriteria;
 import com.project.appliances.exception.OrderNotFoundException;
 import com.project.appliances.mapper.OrdersAdminMapper;
 import com.project.appliances.mapper.OrdersMapper;
@@ -10,14 +11,18 @@ import com.project.appliances.model.OrderStatus;
 import com.project.appliances.model.Orders;
 import com.project.appliances.repository.EmployeeRepository;
 import com.project.appliances.repository.OrdersRepository;
+import com.project.appliances.repository.specification.OrderSpecification;
 import com.project.appliances.service.interfaces.OrdersService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 @Slf4j
 @Service
@@ -48,6 +53,25 @@ public class OrdersServiceImpl implements OrdersService {
         }
 
         return ordersMapper.DetailsToDto(order);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<OrdersAdminDto> findAllOrders() {
+        return ordersRepository.findAllByStatusNot(
+                        OrderStatus.NEW,
+                        Sort.by(Sort.Direction.DESC, "id")
+                )
+                .stream().
+                map(ordersAdminMapper::toAdminDto)
+                .toList();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<OrdersAdminDto> findAllOrders(OrdersSearchCriteria criteria, Pageable pageable) {
+        return ordersRepository.findAll(OrderSpecification.createSpecification(criteria), pageable)
+                .map(ordersAdminMapper::toAdminDto);
     }
 
     @Override
