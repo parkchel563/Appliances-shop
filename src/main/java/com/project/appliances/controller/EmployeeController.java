@@ -22,6 +22,8 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.util.List;
+
 @Controller
 @RequiredArgsConstructor
 @RequestMapping("/employees")
@@ -35,8 +37,10 @@ public class EmployeeController {
                                    @PageableDefault(sort = "id", direction = Sort.Direction.ASC, size = 6) Pageable pageable,
                                    Model model) {
         Page<EmployeeDto> employeesPage = employeeService.findAll(criteria, pageable);
+        List<String> departments = employeeService.findAllDepartments();
 
         model.addAttribute("employeesPage", employeesPage);
+        model.addAttribute("departments", departments);
         model.addAttribute("employees", employeesPage.getContent());
 
         return "employee/employeesPage";

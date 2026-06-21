@@ -139,4 +139,10 @@ public class EmployeeServiceImpl implements EmployeeService {
 
         return rawPassword;
     }
+
+    @Override
+    @Transactional
+    public List<String> findAllDepartments() {
+        return employeeRepository.findAllDistinctDepartments();
+    }
 }

@@ -23,4 +23,6 @@ public interface EmployeeService {
     boolean deleteEmployeeProfile(Long id, String currentUserEmail);
 
     String createEmployee(EmployeeCreateDto dto);
+
+    List<String> findAllDepartments();
 }
