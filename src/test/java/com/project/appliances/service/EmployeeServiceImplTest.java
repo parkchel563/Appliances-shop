@@ -34,9 +34,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 @ExtendWith(MockitoExtension.class)
 class EmployeeServiceImplTest {
-    private final String TARGET_EMAIL = "target@employee.com";
-    private final String CURRENT_USER_EMAIL = "admin@employee.com";
-    private final Long EMPLOYEE_ID = 1L;
+    private static final String TARGET_EMAIL = "target@employee.com";
+    private static final String CURRENT_USER_EMAIL = "admin@employee.com";
+    private static final Long EMPLOYEE_ID = 1L;
     @Mock
     private EmployeeRepository employeeRepository;
     @Mock
