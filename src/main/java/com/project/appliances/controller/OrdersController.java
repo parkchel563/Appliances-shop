@@ -10,11 +10,10 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 
 @Controller
 @RequiredArgsConstructor
@@ -36,5 +35,36 @@ public class OrdersController {
         model.addAttribute("orders", ordersPage.getContent());
 
         return "orders/ordersPage";
+    }
+    
+    @GetMapping("/details/{id}")
+    @PreAuthorize("hasAuthority('ROLE_EMPLOYEE')")
+    public String showOrderDetails(@PathVariable Long id, Model model) {
+        model.addAttribute("order", ordersService.findOrderDetailsById(id));
+        return "orders/orderDetailsPage";
+    }
+
+    @PostMapping("/{id}/take")
+    public String takeOrder(@PathVariable Long id, Authentication auth) {
+        ordersService.takeOrderInWork(id, auth.getName());
+        return "redirect:/orders/details/" + id;
+    }
+
+    @PostMapping("/{id}/ready")
+    public String markReady(@PathVariable Long id, Authentication auth) {
+        ordersService.markAsReady(id, auth.getName());
+        return "redirect:/orders/details/" + id;
+    }
+
+    @PostMapping("/{id}/complete")
+    public String complete(@PathVariable Long id, Authentication auth) {
+        ordersService.markAsCompleted(id, auth.getName());
+        return "redirect:/orders/details/" + id;
+    }
+
+    @PostMapping("/{id}/cancel")
+    public String cancel(@PathVariable Long id, Authentication auth) {
+        ordersService.markAsCancelled(id, auth.getName());
+        return "redirect:/orders/details/" + id;
     }
 }
