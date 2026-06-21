@@ -48,7 +48,18 @@ public class EmployeeServiceImpl implements EmployeeService {
     @Transactional(readOnly = true)
     public Page<EmployeeDto> findAll(EmployeeSearchCriteria criteria, Pageable pageable) {
         return employeeRepository.findAll(EmployeeSpecification.createSpecification(criteria), pageable)
-                .map(employeeMapper::toDto);
+                .map(employee -> {
+                    EmployeeDto dto = employeeMapper.toDto(employee);
+
+                    boolean hasOrders = ordersRepository.existsByEmployeeIdAndStatusIn(
+                            employee.getId(),
+                            List.of(OrderStatus.PROCESSING, OrderStatus.READY, OrderStatus.COMPLETED, OrderStatus.CANCELED)
+                    );
+
+                    dto.setCanBeDeleted(!hasOrders);
+
+                    return dto;
+                });
     }
 
     @Override

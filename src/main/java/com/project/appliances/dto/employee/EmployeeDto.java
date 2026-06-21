@@ -8,4 +8,6 @@ import lombok.EqualsAndHashCode;
 @EqualsAndHashCode(callSuper = true)
 public class EmployeeDto extends UserDto {
     private String department;
+
+    private boolean canBeDeleted;
 }
